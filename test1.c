@@ -17,7 +17,7 @@ typedef struct HealthData {
 
 // Reminder structure using a queue
 typedef struct Reminder {
-    char message[100];
+    char message[256];
     struct Reminder* next;
 } Reminder;
 
@@ -42,9 +42,7 @@ void checkProgress(HealthData* head, float waterGoal, int exerciseGoal, float sl
 void saveRecordsToFile(HealthData* head);
 HealthData* loadRecordsFromFile();
 void deleteRecord(HealthData** head, const char* date);
-void addReminder(Reminder** front, Reminder** rear, const char* message);
-void showReminders(Reminder* front);
-void deleteReminder(Reminder** front);
+void addReminderWithNotification(Reminder** front, Reminder** rear);
 GraphNode* insertGraphNode(GraphNode* root, const char* date, float dataValue);
 void displayGraph(GraphNode* root);
 GraphNode* createGraphFromHealthData(HealthData* head, const char* metric);
@@ -97,14 +95,11 @@ int main() {
         printf("4. Check Progress\n");
         printf("5. Delete a Record\n");
         printf("6. Save Records to File\n");
-        printf("7. Show Reminders\n");
-        printf("8. Add Reminder\n");
-        printf("9. Delete Reminder\n");
-        printf("10. Display Graph for Health Metric\n");
-        printf("11. Undo Last Operation\n");
-        printf("12. Set Alarm\n");
-        printf("13. Show Reminder Notification\n");
-        printf("14. Exit\n");
+        printf("7. Add Reminder\n");
+        printf("8. Display Graph for Health Metric\n");
+        printf("9. Undo Last Operation\n");
+        printf("10. Set Alarm\n");
+        printf("11. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
         getchar(); // Consume newline character
@@ -136,20 +131,14 @@ int main() {
                 saveRecordsToFile(head);
                 break;
             case 7:
-                showReminders(reminderFront);
-                break;
+                Reminder* reminderFront = NULL;
+                Reminder* reminderRear = NULL;
+
+                // Call the function to add a reminder and show the notification
+                addReminderWithNotification(&reminderFront, &reminderRear);
+
+                break;                
             case 8: {
-                char message[100];
-                printf("Enter reminder message: ");
-                fgets(message, 100, stdin);
-                message[strcspn(message, "\n")] = 0; // Remove newline character
-                addReminder(&reminderFront, &reminderRear, message);
-                break;
-            }
-            case 9:
-                deleteReminder(&reminderFront);
-                break;
-            case 10: {
                 char metric[20];
                 printf("Enter the health metric to graph (options: water, exercise, sleep, weight): ");
                 fgets(metric, 20, stdin);
@@ -162,13 +151,13 @@ int main() {
                 }
                 break;
             }
-            case 11:
+            case 9:
                 head = popUndoStack();
                 if (head != NULL) {
                     printf("Last operation undone successfully!\n");
                 }
                 break;
-            case 12: {
+            case 10: {
                 int seconds;
                 printf("Enter time for alarm (in seconds): ");
                 scanf("%d", &seconds);
@@ -176,15 +165,7 @@ int main() {
                 trigger_alarm(); // Trigger alarm after sleep
                 break;
             }
-            case 13: {
-                if (reminderFront != NULL) {
-                    show_notification(reminderFront->message);
-                } else {
-                    printf("No reminders to show.\n");
-                }
-                break;
-            }
-            case 14:
+            case 11:
                 printf("Exiting...\n");
                 break;
             default:
@@ -332,7 +313,25 @@ void deleteRecord(HealthData** head, const char* date) {
 }
 
 // Function to add a reminder
-void addReminder(Reminder** front, Reminder** rear, const char* message) {
+void addReminderWithNotification(Reminder** front, Reminder** rear) {
+    char message[256];
+    int duration;
+    NOTIFYICONDATA nid;
+
+    // Prompt user for notification message
+    printf("Enter your notification message: ");
+    fgets(message, sizeof(message), stdin);
+    message[strcspn(message, "\n")] = 0;  // Remove newline character
+
+    // Prompt user for duration in seconds
+    printf("Enter the duration in seconds: ");
+    while (scanf("%d", &duration) != 1 || duration < 1) {
+        printf("Invalid input. Please enter a positive number: ");
+        while (getchar() != '\n'); // Clear the input buffer
+    }
+    getchar(); // Consume any leftover newline character
+
+    // Add the reminder to the linked list
     Reminder* newReminder = (Reminder*)malloc(sizeof(Reminder));
     if (newReminder == NULL) {
         printf("Memory allocation failed for reminder.\n");
@@ -347,32 +346,36 @@ void addReminder(Reminder** front, Reminder** rear, const char* message) {
         *rear = newReminder;
     }
     printf("Reminder added successfully!\n");
-}
 
-// Function to show reminders
-void showReminders(Reminder* front) {
-    if (front == NULL) {
-        printf("No reminders to show.\n");
-        return;
-    }
-    Reminder* temp = front;
-    while (temp != NULL) {
-        printf("Reminder: %s\n", temp->message);
-        temp = temp->next;
-    }
-}
+    // Initialize NOTIFYICONDATA structure
+    ZeroMemory(&nid, sizeof(nid));
+    nid.cbSize = sizeof(nid);
+    nid.uID = 1;
+    nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+    nid.hWnd = NULL;
+    nid.uCallbackMessage = WM_USER + 1;
+    nid.hIcon = LoadIcon(NULL, IDI_INFORMATION);
+    lstrcpy(nid.szTip, message);  // Set message as the tooltip
 
+    // Wait for the user-specified duration before showing the notification
+    printf("Waiting for %d seconds before showing the message...\n", duration);
+    Sleep(duration * 1000);  // Convert seconds to milliseconds
+
+    // Add the notification icon to the system tray
+    Shell_NotifyIcon(NIM_ADD, &nid);
+
+    // Show the notification message in a MessageBox
+    MessageBox(NULL, message, "Notification", MB_OK);
+
+    // Wait for the same duration before removing the notification icon
+    printf("Notification will disappear in %d seconds...\n", duration);
+    Sleep(duration * 1000);  // Wait for the same duration before removing the icon
+
+    // Remove the notification icon from the system tray
+    Shell_NotifyIcon(NIM_DELETE, &nid);
+}
+// Function to show reminde
 // Function to delete a reminder
-void deleteReminder(Reminder** front) {
-    if (*front == NULL) {
-        printf("No reminders to delete.\n");
-        return;
-    }
-    Reminder* temp = *front;
-    *front = (*front)->next;
-    free(temp);
-    printf("Reminder deleted successfully!\n");
-}
 
 // Function to push the current head into the undo stack
 void pushUndoStack(HealthData* head) {
