@@ -43,39 +43,13 @@ void saveRecordsToFile(HealthData* head);
 HealthData* loadRecordsFromFile();
 void deleteRecord(HealthData** head, const char* date);
 void addReminderWithNotification(Reminder** front, Reminder** rear);
+void show_notification(const char* message);
 GraphNode* insertGraphNode(GraphNode* root, const char* date, float dataValue);
 void displayGraph(GraphNode* root);
 GraphNode* createGraphFromHealthData(HealthData* head, const char* metric);
 void pushUndoStack(HealthData* head);
 HealthData* popUndoStack();
-
-// Function to trigger an alarm with a beep and message box
-void trigger_alarm() {
-    Beep(1000, 10000);  // Frequency 1000 Hz, duration 1000 ms
-    MessageBox(NULL, "Time's up!", "Alarm", MB_OK);
-}
-
-// Function to show a system tray notification
-void show_notification(const char* message) {
-    NOTIFYICONDATA nid;
-    ZeroMemory(&nid, sizeof(nid));
-    nid.cbSize = sizeof(nid);
-    nid.uID = 1;
-    nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
-    nid.hWnd = NULL;
-    nid.uCallbackMessage = WM_USER + 1;
-    nid.hIcon = LoadIcon(NULL, IDI_INFORMATION);
-    lstrcpy(nid.szTip, "Health Tracker Notification");
-
-    // Add the notification icon to the system tray
-    Shell_NotifyIcon(NIM_ADD, &nid);
-
-    // Show the notification
-    MessageBox(NULL, message, "Reminder", MB_OK);
-
-    // Remove the icon after use
-    Shell_NotifyIcon(NIM_DELETE, &nid);
-}
+void trigger_alarm();
 
 int main() {
     HealthData* head = loadRecordsFromFile();
@@ -377,6 +351,33 @@ void addReminderWithNotification(Reminder** front, Reminder** rear) {
 // Function to show reminde
 // Function to delete a reminder
 
+// Function to trigger an alarm with a beep and message box
+void trigger_alarm() {
+    Beep(1000, 10000);  // Frequency 1000 Hz, duration 1000 ms
+    MessageBox(NULL, "Time's up!", "Alarm", MB_OK);
+}
+
+// Function to show a system tray notification
+void show_notification(const char* message) {
+    NOTIFYICONDATA nid;
+    ZeroMemory(&nid, sizeof(nid));
+    nid.cbSize = sizeof(nid);
+    nid.uID = 1;
+    nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+    nid.hWnd = NULL;
+    nid.uCallbackMessage = WM_USER + 1;
+    nid.hIcon = LoadIcon(NULL, IDI_INFORMATION);
+    lstrcpy(nid.szTip, "Health Tracker Notification");
+
+    // Add the notification icon to the system tray
+    Shell_NotifyIcon(NIM_ADD, &nid);
+
+    // Show the notification
+    MessageBox(NULL, message, "Reminder", MB_OK);
+
+    // Remove the icon after use
+    Shell_NotifyIcon(NIM_DELETE, &nid);
+}
 // Function to push the current head into the undo stack
 void pushUndoStack(HealthData* head) {
     if (top >= MAX_STACK_SIZE - 1) {
