@@ -107,8 +107,6 @@ int main() {
             case 7:
                 Reminder* reminderFront = NULL;
                 Reminder* reminderRear = NULL;
-
-                // Call the function to add a reminder and show the notification
                 addReminderWithNotification(&reminderFront, &reminderRear);
 
                 break;                
@@ -191,6 +189,25 @@ void displayRecords(HealthData* head) {
                 temp->date, temp->waterIntake, temp->exerciseMinutes, temp->sleepHours, temp->weight);
         temp = temp->next;
     }
+}
+
+// Function to push the current head into the undo stack
+void pushUndoStack(HealthData* head) {
+    if (top >= MAX_STACK_SIZE - 1) {
+        printf("Undo stack is full. Cannot save state.\n");
+        return;
+    }
+    top++;
+    undoStack[top] = head;
+}
+
+// Function to pop from the undo stack
+HealthData* popUndoStack() {
+    if (top < 0) {
+        printf("No operations to undo.\n");
+        return NULL;
+    }
+    return undoStack[top--];
 }
 
 // Function to set health goals
@@ -377,24 +394,6 @@ void show_notification(const char* message) {
 
     // Remove the icon after use
     Shell_NotifyIcon(NIM_DELETE, &nid);
-}
-// Function to push the current head into the undo stack
-void pushUndoStack(HealthData* head) {
-    if (top >= MAX_STACK_SIZE - 1) {
-        printf("Undo stack is full. Cannot save state.\n");
-        return;
-    }
-    top++;
-    undoStack[top] = head;
-}
-
-// Function to pop from the undo stack
-HealthData* popUndoStack() {
-    if (top < 0) {
-        printf("No operations to undo.\n");
-        return NULL;
-    }
-    return undoStack[top--];
 }
 
 // Function to insert a node into the graph tree
