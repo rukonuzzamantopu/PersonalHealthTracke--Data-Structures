@@ -143,7 +143,7 @@ int main() {
             default:
                 printf("Invalid choice. Please try again.\n");
         }
-    } while (choice != 14);
+    } while (choice != 12);
 
     return 0;
 }
