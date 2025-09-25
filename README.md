@@ -1,7 +1,7 @@
 # Personal Health Tracker
 
 This project is a Personal Health Tracker application written in C that helps users track their daily health metrics, set goals, monitor progress, and get reminders for their health-related activities. It includes functionalities such as adding daily health records, setting and checking health goals, displaying health metrics in a graphical format, and showing reminders as system notifications.
-
+---
 ## Features
 
 - **Add Daily Health Record**: Users can add health records such as water intake, exercise duration, sleep hours, and weight for a specific date.
@@ -17,25 +17,14 @@ This project is a Personal Health Tracker application written in C that helps us
 - **Undo Last Operation**: Undo the last health record addition or deletion.
 - **Set Alarm**: Set a timer to trigger an alarm (beep sound) after a specified number of seconds.
 - **Show Reminder Notification**: Display a system tray notification with a reminder message.
-
+---
 ## Requirements
 
 - C compiler (e.g., GCC, MinGW)
 - Windows OS (for system tray notifications and `Beep` functionality)
 - Standard C libraries (stdio.h, stdlib.h, string.h, time.h, windows.h, shellapi.h)
 
-## Installation
-
-1. Clone or download the repository.
-2. Compile the program using your preferred C compiler. For example, using GCC:
-    ```bash
-    gcc -o health_tracker health_tracker.c
-    ```
-3. Run the compiled executable:
-    ```bash
-    ./health_tracker
-    ```
-
+---
 ## Usage
 
 ### Main Menu Options
@@ -56,7 +45,7 @@ Once the program is executed, you will see the following main menu options:
 12. **Set Alarm**: Set an alarm that triggers a beep and message box after a specified duration.
 13. **Show Reminder Notification**: Display a reminder notification in the system tray.
 14. **Exit**: Exit the application.
-
+---
 ### Graphing Health Metrics
 
 The program allows you to graph health metrics such as water intake, exercise minutes, sleep hours, or weight. Choose the metric from the following options:
@@ -66,15 +55,15 @@ The program allows you to graph health metrics such as water intake, exercise mi
 - Weight
 
 The data will be displayed in a tree format sorted by date.
-
+---
 ### Reminder System
 
 You can set reminders that show up as system tray notifications or pop-up message boxes after a specific time delay. Additionally, you can delete or view all existing reminders.
-
+---
 ### Alarm System
 
 An alarm (beep sound and message box) can be triggered after a certain amount of time (in seconds). The alarm will beep for 10 seconds.
-
+---
 ## Code Structure
 
 The project consists of the following main components:
@@ -97,7 +86,7 @@ The project consists of the following main components:
    - **insertGraphNode**: Inserts a new node into the graph tree.
    - **displayGraph**: Displays the graph of health data.
    - **createGraphFromHealthData**: Creates a graph from health data based on the selected metric.
-
+---
 ## Example Output
 
 ```bash
